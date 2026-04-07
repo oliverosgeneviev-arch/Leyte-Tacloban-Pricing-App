@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PalengkeCheck Leyte — Market Price Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1a4731;
+    --forest-mid: #2d6a4f;
+    --forest-light: #40916c;
+    --amber: #e9962a;
+    --amber-light: #f4c261;
+    --cream: #fdf6e3;
+    --cream-dark: #f0e6c8;
+    --red-mark: #c0392b;
+    --red-light: #e74c3c;
+    --text-dark: #1c1c1c;
+    --text-mid: #4a4a4a;
+    --text-light: #888;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 24px rgba(26,71,49,0.10);
+    --shadow-lg: 0 8px 40px rgba(26,71,49,0.16);
+    --radius: 18px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--forest);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 14px 20px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--amber);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .logo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span {
+    font-family: 'Caveat', cursive;
+    font-size: 0.85rem;
+    color: var(--amber-light);
+    display: block;
+    margin-top: 1px;
+  }
+
+  .header-badge {
+    margin-left: auto;
+    background: var(--amber);
+    color: var(--forest);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--forest-mid) 0%, var(--forest) 100%);
+    padding: 28px 20px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    color: white;
+    font-weight: 900;
+    position: relative;
+  }
+
+  .hero-sub {
+    color: var(--amber-light);
+    font-size: 0.9rem;
+    margin-top: 6px;
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    position: relative;
+  }
+
+  /* ── LEGEND PILLS ── */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .legend-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 30px;
+    padding: 5px 12px;
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-market { background: var(--amber); }
+  .dot-grocery { background: #74b9ff; }
+  .dot-cheaper { background: #55efc4; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    max-width: 900px;
+    margin: -20px auto 0;
+    padding: 0 16px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .search-box {
+    background: white;
+    border-radius: 50px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    padding: 4px 4px 4px 20px;
+    gap: 10px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus-within {
+    border-color: var(--forest-light);
+  }
+
+  .search-icon { color: var(--text-light); font-size: 1.1rem; }
+
+  .search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    background: transparent;
+    padding: 10px 0;
+  }
+
+  .search-box input::placeholder { color: var(--text-light); font-weight: 400; }
+
+  .search-btn {
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    padding: 10px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .search-btn:active { transform: scale(0.97); }
+
+  /* ── CATEGORIES ── */
+  .section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px 0;
+  }
+
+  .section-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: var(--forest-mid);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .cat-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .cat-scroll::-webkit-scrollbar { display: none; }
+
+  .cat-btn {
+    flex-shrink: 0;
+    background: white;
+    border: 2px solid var(--cream-dark);
+    border-radius: 30px;
+    padding: 7px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  .cat-btn:hover { border-color: var(--forest-light); color: var(--forest); }
+  .cat-btn.active {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    max-width: 900px;
+    margin: 20px auto 0;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 14px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 3px solid var(--forest-light);
+  }
+
+  .stat-card.amber { border-top-color: var(--amber); }
+  .stat-card.blue { border-top-color: #74b9ff; }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--forest);
+  }
+
+  .stat-card.amber .stat-num { color: var(--amber); }
+  .stat-card.blue .stat-num { color: #2980b9; }
+
+  .stat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 2px;
+  }
+
+  /* ── PRICE CARDS ── */
+  .items-section {
+    max-width: 900px;
+    margin: 24px auto 40px;
+    padding: 0 16px;
+  }
+
+  .items-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .items-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    font-weight: 700;
+  }
+
+  .items-count {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+
+  .sort-select {
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    background: white;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  /* ── ITEM CARD ── */
+  .item-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1.5px solid transparent;
+  }
+
+  .item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--cream-dark);
+  }
+
+  .card-top {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .card-row1 {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .item-name {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-dark);
+    line-height: 1.2;
+  }
+
+  .item-unit {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .cat-tag {
+    background: var(--cream-dark);
+    color: var(--forest-mid);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .prices-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .price-block {
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    position: relative;
+  }
+
+  .price-block.market {
+    background: #fffbf0;
+    border: 1.5px solid #f4c261;
+  }
+
+  .price-block.grocery {
+    background: #f0f7ff;
+    border: 1.5px solid #74b9ff;
+  }
+
+  .price-block.cheaper-flag {
+    border-width: 2px;
+  }
+
+  .price-block.market.cheaper-flag { border-color: var(--amber); background: #fff8e1; }
+  .price-block.grocery.cheaper-flag { border-color: #2980b9; background: #e8f4fd; }
+
+  .pb-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .pb-label.market { color: #b7791f; }
+  .pb-label.grocery { color: #2980b9; }
+
+  .pb-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1;
+  }
+
+  .pb-price .peso { font-size: 0.85rem; }
+
+  .cheaper-badge {
+    position: absolute;
+    top: -8px;
+    right: 8px;
+    background: #27ae60;
+    color: white;
+    font-size: 0.58rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .card-bottom {
+    padding: 10px 16px 14px;
+  }
+
+  .savings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .savings-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-light);
+  }
+
+  .savings-amount {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #27ae60;
+  }
+
+  .savings-bar-wrap {
+    background: #eee;
+    border-radius: 10px;
+    height: 6px;
+    margin-top: 7px;
+    overflow: hidden;
+  }
+
+  .savings-bar {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.6s ease;
+  }
+
+  .winner-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .winner-icon { font-size: 1rem; }
+
+  .winner-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+
+  .winner-text strong { color: var(--forest); }
+
+  /* no results */
+  .no-results {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-light);
+  }
+
+  .no-results .nr-icon { font-size: 3rem; }
+  .no-results p { margin-top: 12px; font-weight: 600; font-size: 1rem; }
+  .no-results small { font-size: 0.82rem; }
+
+  /* ── UPDATE BANNER ── */
+  .update-banner {
+    background: var(--forest);
+    color: white;
+    text-align: center;
+    font-size: 0.75rem;
+    padding: 8px 16px;
+    font-weight: 600;
+  }
+
+  .update-banner span {
+    font-family: 'Caveat', cursive;
+    font-size: 0.95rem;
+    color: var(--amber-light);
+    margin-right: 6px;
+  }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer {
+    max-width: 900px;
+    margin: 0 auto 32px;
+    padding: 0 16px;
+  }
+
+  .disclaimer-box {
+    background: white;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--amber);
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* ── REPORT PRICE BTN ── */
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    z-index: 200;
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(26,71,49,0.35);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .fab:hover { background: var(--forest-light); transform: translateY(-2px); }
+  .fab:active { transform: scale(0.96); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 24px 24px 16px 16px;
+    width: 100%;
+    max-width: 500px;
+    padding: 28px 24px 32px;
+    animation: slideUp 0.28s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--text-dark);
+  }
+
+  .form-group { margin-bottom: 14px; }
+
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-mid);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    border: 2px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--forest-light);
+  }
+
+  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+
+  .btn-submit {
+    flex: 1;
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 13px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover { background: var(--forest-light); }
+
+  .btn-cancel {
+    background: var(--cream-dark);
+    color: var(--text-mid);
+    border: none;
+    border-radius: 50px;
+    padding: 13px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--forest);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 50px;
+    box-shadow: var(--shadow-lg);
+    z-index: 400;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── LAST UPDATED ── */
+  .last-updated {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 420px) {
+    .items-grid { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: repeat(3, 1fr); }
+    .stat-num { font-size: 1.2rem; }
+    .pb-price { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- UPDATE BANNER -->
+<div class="update-banner">
+  <span>📢</span>Prices updated weekly based on Leyte wet market & grocery surveys — FREE community service
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo-icon">🛒</div>
+    <div class="logo-text">
+      <h1>PalengkeCheck</h1>
+      <span>Leyte Price Tracker</span>
+    </div>
+    <div class="header-badge">🇵🇭 Leyte</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-title">Compare Market & Grocery Prices</div>
+  <div class="hero-sub">Palengke o Grocery — saan mas mura? 🥦🐟🍚</div>
+  <div class="legend">
+    <div class="legend-pill"><div class="dot dot-market"></div> Wet Market</div>
+    <div class="legend-pill"><div class="dot dot-grocery"></div> Grocery</div>
+    <div class="legend-pill"><div class="dot dot-cheaper"></div> Mas Mura</div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search for bangus, kamatis, bigas..." oninput="filterItems()">
+    <button class="search-btn" onclick="filterItems()">Hanapin</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card amber">
+    <div class="stat-num" id="statMarket">0</div>
+    <div class="stat-label">Market Wins</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-num" id="statGrocery">0</div>
+    <div class="stat-label">Grocery Wins</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="statTotal">0</div>
+    <div class="stat-label">Items Listed</div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="section">
+  <div class="section-label">Browse by Category</div>
+  <div class="cat-scroll" id="catScroll">
+    <button class="cat-btn active" onclick="filterCat('all', this)">🏪 Lahat</button>
+    <button class="cat-btn" onclick="filterCat('Gulay', this)">🥦 Gulay</button>
+    <button class="cat-btn" onclick="filterCat('Prutas', this)">🍌 Prutas</button>
+    <button class="cat-btn" onclick="filterCat('Isda & Pagkaing-dagat', this)">🐟 Isda</button>
+    <button class="cat-btn" onclick="filterCat('Karne', this)">🥩 Karne</button>
+    <button class="cat-btn" onclick="filterCat('Bigas & Cereal', this)">🌾 Bigas</button>
+    <button class="cat-btn" onclick="filterCat('Itlog & Gatas', this)">🥚 Itlog & Gatas</button>
+    <button class="cat-btn" onclick="filterCat('Pampalasa', this)">🧄 Pampalasa</button>
+    <button class="cat-btn" onclick="filterCat('Langis & Suka', this)">🫙 Langis</button>
+    <button class="cat-btn" onclick="filterCat('Meryenda', this)">🍞 Meryenda</button>
+  </div>
+</div>
+
+<!-- ITEMS -->
+<div class="items-section">
+  <div class="items-header">
+    <div>
+      <div class="items-title">Price Comparison</div>
+      <div class="items-count" id="itemsCount">Loading...</div>
+    </div>
+    <select class="sort-select" onchange="sortItems(this.value)">
+      <option value="default">Sort: Default</option>
+      <option value="savings-desc">Biggest Savings ↓</option>
+      <option value="market-asc">Market Price ↑</option>
+      <option value="grocery-asc">Grocery Price ↑</option>
+      <option value="name-asc">Name A–Z</option>
+    </select>
+  </div>
+  <div class="items-grid" id="itemsGrid"></div>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <div class="disclaimer-box">
+    ⚠️ <strong>Paalala:</strong> Prices shown are community-sourced estimates from Tacloban City, Ormoc, Palo, and surrounding Leyte areas. Prices may vary per vendor and season. Last survey: <strong id="lastSurvey"></strong>. Help us improve by reporting current prices using the button below!
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openModal()">
+  📋 I-report ang Presyo
+</button>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-title">📋 I-report ang Presyo</div>
+    <div class="form-group">
+      <label>Produkto / Item</label>
+      <input type="text" id="repItem" placeholder="e.g. Bangus, Kamatis...">
+    </div>
+    <div class="form-group">
+      <label>Lokasyon sa Leyte</label>
+      <select id="repLocation">
+        <option value="">Piliin ang Lungsod/Bayan</option>
+        <option>Tacloban City</option>
+        <option>Ormoc City</option>
+        <option>Palo</option>
+        <option>Tanauan</option>
+        <option>Carigara</option>
+        <option>Baybay City</option>
+        <option>Maasin City</option>
+        <option>Hilongos</option>
+        <option>Abuyog</option>
+        <option>Iba pa</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Uri ng Tindahan</label>
+      <select id="repStore">
+        <option value="market">🛖 Wet Market / Palengke</option>
+        <option value="grocery">🏪 Grocery / Supermarket</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Presyo (₱) bawat kilo/piraso</label>
+      <input type="number" id="repPrice" placeholder="e.g. 120">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Kanselahin</button>
+      <button class="btn-submit" onclick="submitReport()">Isumite ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const priceData = [
+  // GULAY
+  { name: "Kamatis", unit: "per kilo", cat: "Gulay", market: 55, grocery: 75 },
+  { name: "Sibuyas (Pula)", unit: "per kilo", cat: "Gulay", market: 90, grocery: 115 },
+  { name: "Bawang (Local)", unit: "per kilo", cat: "Gulay", market: 160, grocery: 210 },
+  { name: "Luya (Ginger)", unit: "per 100g", cat: "Gulay", market: 20, grocery: 28 },
+  { name: "Kangkong", unit: "per bundle", cat: "Gulay", market: 15, grocery: 25 },
+  { name: "Pechay", unit: "per kilo", cat: "Gulay", market: 50, grocery: 68 },
+  { name: "Ampalaya", unit: "per kilo", cat: "Gulay", market: 65, grocery: 85 },
+  { name: "Okra", unit: "per kilo", cat: "Gulay", market: 45, grocery: 60 },
+  { name: "Sitaw (String Beans)", unit: "per kilo", cat: "Gulay", market: 55, grocery: 72 },
+  { name: "Talong (Eggplant)", unit: "per kilo", cat: "Gulay", market: 48, grocery: 65 },
+  { name: "Kalabasa", unit: "per kilo", cat: "Gulay", market: 40, grocery: 55 },
+  { name: "Sayote", unit: "per piece", cat: "Gulay", market: 15, grocery: 22 },
+  // PRUTAS
+  { name: "Saging (Lakatan)", unit: "per kilo", cat: "Prutas", market: 65, grocery: 85 },
+  { name: "Mangga (Carabao)", unit: "per kilo", cat: "Prutas", market: 80, grocery: 110 },
+  { name: "Papaya (Hinog)", unit: "per kilo", cat: "Prutas", market: 35, grocery: 55 },
+  { name: "Pakwan (Watermelon)", unit: "per kilo", cat: "Prutas", market: 30, grocery: 45 },
+  { name: "Piña (Local)", unit: "per piece", cat: "Prutas", market: 40, grocery: 60 },
+  { name: "Calamansi", unit: "per kilo", cat: "Prutas", market: 80, grocery: 100 },
+  // ISDA
+  { name: "Bangus (Milkfish)", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 160, grocery: 195 },
+  { name: "Tilapia", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 120, grocery: 150 },
+  { name: "Galunggong", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 180, grocery: 210 },
+  { name: "Dilis (Dried)", unit: "per 250g", cat: "Isda & Pagkaing-dagat", market: 55, grocery: 70 },
+  { name: "Pusit (Squid)", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 220, grocery: 280 },
+  { name: "Hipon (Suahe)", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 280, grocery: 340 },
+  { name: "Alimango (Mud Crab)", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 380, grocery: 480 },
+  { name: "Tulingan", unit: "per kilo", cat: "Isda & Pagkaing-dagat", market: 150, grocery: 185 },
+  // KARNE
+  { name: "Baboy (Liempo)", unit: "per kilo", cat: "Karne", market: 280, grocery: 310 },
+  { name: "Baboy (Kasim)", unit: "per kilo", cat: "Karne", market: 250, grocery: 285 },
+  { name: "Manok (Whole)", unit: "per kilo", cat: "Karne", market: 180, grocery: 210 },
+  { name: "Baka (Bulalo Cut)", unit: "per kilo", cat: "Karne", market: 350, grocery: 420 },
+  { name: "Baka (Giniling)", unit: "per kilo", cat: "Karne", market: 320, grocery: 380 },
+  { name: "Manok Liver", unit: "per kilo", cat: "Karne", market: 120, grocery: 150 },
+  // BIGAS
+  { name: "Bigas (Sinandomeng)", unit: "per kilo", cat: "Bigas & Cereal", market: 48, grocery: 52 },
+  { name: "Bigas (Dinurado)", unit: "per kilo", cat: "Bigas & Cereal", market: 50, grocery: 55 },
+  { name: "Bigas (Milagrosa)", unit: "per kilo", cat: "Bigas & Cereal", market: 54, grocery: 58 },
+  { name: "Bigas (NFA/Subsidized)", unit: "per kilo", cat: "Bigas & Cereal", market: 42, grocery: 45 },
+  // ITLOG & GATAS
+  { name: "Itlog (Manok)", unit: "per piece", cat: "Itlog & Gatas", market: 9, grocery: 11 },
+  { name: "Itlog (Pato)", unit: "per piece", cat: "Itlog & Gatas", market: 14, grocery: 18 },
+  { name: "Gatas (Powdered, 150g)", unit: "per pack", cat: "Itlog & Gatas", market: 58, grocery: 55 },
+  { name: "Condensada (Carnation)", unit: "per can", cat: "Itlog & Gatas", market: 45, grocery: 43 },
+  // PAMPALASA
+  { name: "Asin (Salt, 500g)", unit: "per pack", cat: "Pampalasa", market: 12, grocery: 15 },
+  { name: "Toyo (Soy Sauce, 1L)", unit: "per bottle", cat: "Pampalasa", market: 65, grocery: 60 },
+  { name: "Patis (Fish Sauce)", unit: "per bottle", cat: "Pampalasa", market: 55, grocery: 58 },
+  { name: "Bagoong Alamang", unit: "per jar (250g)", cat: "Pampalasa", market: 45, grocery: 50 },
+  // LANGIS
+  { name: "Mantika (Palm Oil, 1L)", unit: "per bottle", cat: "Langis & Suka", market: 82, grocery: 78 },
+  { name: "Suka (Coconut, 375ml)", unit: "per bottle", cat: "Langis & Suka", market: 28, grocery: 32 },
+  { name: "Bawang-sibuyas oil", unit: "per bottle 250ml", cat: "Langis & Suka", market: 45, grocery: 55 },
+  // MERYENDA
+  { name: "Tinapay (Tasty Bread)", unit: "per loaf", cat: "Meryenda", market: 55, grocery: 52 },
+  { name: "Pancit Canton (Lucky Me)", unit: "per pack", cat: "Meryenda", market: 12, grocery: 11 },
+  { name: "Skyflakes (10s)", unit: "per pack", cat: "Meryenda", market: 15, grocery: 14 },
+];
+
+let activeCategory = 'all';
+let searchQuery = '';
+let sortMode = 'default';
+
+// ── RENDER ────────────────────────────────────────────────────────
+function getFiltered() {
+  let data = [...priceData];
+  if (activeCategory !== 'all') data = data.filter(d => d.cat === activeCategory);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    data = data.filter(d => d.name.toLowerCase().includes(q) || d.cat.toLowerCase().includes(q));
+  }
+  // Sort
+  if (sortMode === 'savings-desc') {
+    data.sort((a, b) => Math.abs(b.market - b.grocery) - Math.abs(a.market - a.grocery));
+  } else if (sortMode === 'market-asc') {
+    data.sort((a, b) => a.market - b.market);
+  } else if (sortMode === 'grocery-asc') {
+    data.sort((a, b) => a.grocery - b.grocery);
+  } else if (sortMode === 'name-asc') {
+    data.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return data;
+}
+
+function render() {
+  const data = getFiltered();
+  const grid = document.getElementById('itemsGrid');
+  const count = document.getElementById('itemsCount');
+
+  count.textContent = `${data.length} item${data.length !== 1 ? 's' : ''} found`;
+
+  if (!data.length) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1">
+      <div class="nr-icon">🔍</div>
+      <p>Walang nahanap na produkto</p>
+      <small>Try a different search or category</small>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(item => {
+    const cheaper = item.market <= item.grocery ? 'market' : 'grocery';
+    const savings = Math.abs(item.market - item.grocery);
+    const savingsPct = Math.round((savings / Math.max(item.market, item.grocery)) * 100);
+    const winnerLabel = cheaper === 'market' ? '🛖 Palengke' : '🏪 Grocery';
+    const winnerColor = cheaper === 'market' ? '#b7791f' : '#2980b9';
+
+    return `
+    <div class="item-card">
+      <div class="card-top">
+        <div class="card-row1">
+          <div>
+            <div class="item-name">${item.name}</div>
+            <div class="item-unit">${item.unit}</div>
+          </div>
+          <div class="cat-tag">${item.cat}</div>
+        </div>
+        <div class="prices-compare">
+          <div class="price-block market ${cheaper === 'market' ? 'cheaper-flag' : ''}">
+            ${cheaper === 'market' ? '<div class="cheaper-badge">Mas Mura ✓</div>' : ''}
+            <div class="pb-label market">🛖 Market</div>
+            <div class="pb-price"><span class="peso">₱</span>${item.market.toLocaleString()}</div>
+          </div>
+          <div class="price-block grocery ${cheaper === 'grocery' ? 'cheaper-flag' : ''}">
+            ${cheaper === 'grocery' ? '<div class="cheaper-badge">Mas Mura ✓</div>' : ''}
+            <div class="pb-label grocery">🏪 Grocery</div>
+            <div class="pb-price"><span class="peso">₱</span>${item.grocery.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="savings-row">
+          <span class="savings-label">💰 You save</span>
+          <span class="savings-amount">₱${savings} (${savingsPct}%)</span>
+        </div>
+        <div class="savings-bar-wrap">
+          <div class="savings-bar" style="width:${Math.min(savingsPct * 2, 100)}%"></div>
+        </div>
+        <div class="winner-row">
+          <span class="winner-icon">🏆</span>
+          <span class="winner-text">Bumili sa <strong style="color:${winnerColor}">${winnerLabel}</strong> para makatipid!</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateStats();
+}
+
+function updateStats() {
+  const data = getFiltered();
+  let mWins = 0, gWins = 0;
+  data.forEach(d => { if (d.market <= d.grocery) mWins++; else gWins++; });
+  document.getElementById('statMarket').textContent = mWins;
+  document.getElementById('statGrocery').textContent = gWins;
+  document.getElementById('statTotal').textContent = data.length;
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────
+function filterCat(cat, btn) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function filterItems() {
+  searchQuery = document.getElementById('searchInput').value.trim();
+  render();
+}
+
+function sortItems(val) {
+  sortMode = val;
+  render();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function submitReport() {
+  const item = document.getElementById('repItem').value.trim();
+  const loc = document.getElementById('repLocation').value;
+  const price = document.getElementById('repPrice').value;
+  if (!item || !loc || !price) {
+    showToast('⚠️ Pakitustusan ang lahat ng fields!');
+    return;
+  }
+  closeModal();
+  document.getElementById('repItem').value = '';
+  document.getElementById('repLocation').value = '';
+  document.getElementById('repPrice').value = '';
+  showToast('✅ Salamat! Ang iyong ulat ay natanggap na.');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+function init() {
+  const now = new Date();
+  // Set last survey date to most recent Monday
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const lastMon = new Date(now.setDate(diff));
+  const opts = { year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('lastSurvey').textContent = lastMon.toLocaleDateString('en-PH', opts);
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
